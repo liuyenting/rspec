@@ -96,6 +96,7 @@ setup(
     # executable scripts
     entry_points={
         'console_scripts': [
+            'database=rspec.cli.database:main'
         ]
     }
 )
