@@ -3,6 +3,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 
 logger = logging.getLogger()
 
@@ -28,6 +29,14 @@ def open_thermo(path):
         # load all the file in-memory, assuming small data size
         lines = fd.read().split('\n')
 
+    name = read_sections(lines, 'finalresult')
+    if len(name) > 1:
+        name = None
+        logger.info("mixture spectrum")
+    else:
+        name = name[0].split()[1].lower()
+        logger.info("spectra of \"{}\"".format(name))
+
     s_data = read_sections(lines, 'spectrum')
     _s_data = StringIO('\n'.join(s_data))
     i_data = pd.read_csv(
@@ -37,4 +46,5 @@ def open_thermo(path):
         names=['wavelength', 'intensity'], 
         dtype=np.float32
     )
-    return i_data
+
+    return name, i_data

@@ -64,6 +64,12 @@ setup(
         'scipy',
         'pandas',
 
+        # database
+        'sqlalchemy',
+
+        # plot
+        'plotly',
+
         # utils
         'click',
         'coloredlogs',
