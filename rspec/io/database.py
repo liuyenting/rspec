@@ -18,10 +18,41 @@ class Database(MutableMapping):
         self._conn = None
         self._spectrum = dict()
 
-    def __delitem__(self):
-        pass
-
     def __enter__(self):
+        self.open()
+        return self
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    def __delitem__(self, key):
+        # remove from in-memory database
+        self._spectrum.pop(key, None)
+        # wipe from file
+        with self._conn.begin() as trans:
+            self._conn.execute("DROP TABLE IF EXISTS {};".format(key))
+
+    def __getitem__(self, key):
+        return self._spectrum[key]
+
+    def __setitem__(self, key, value):
+        if key in self._spectrum:
+            raise KeyError("compound \"{}\" already exists".format(key))
+        elif not isinstance(value, pd.DataFrame):
+            raise ValueError("not a DataFrame")
+
+        # save to in-memory database
+        self._spectrum[key] = value
+        # save to file
+        value.to_sql(key, self._conn, if_exists='fail')
+
+    def __iter__(self):
+        return iter(self._spectrum)
+
+    def __len__(self):
+        return len(self._spectrum)
+        
+    def open(self):
         engine = create_engine("sqlite:///{}".format(self._path))
         self._conn = engine.connect()
 
@@ -32,30 +63,7 @@ class Database(MutableMapping):
         )
         for compound in compounds:
             self._spectrum[compound] = pd.read_sql_table(compound, self._conn)
-        
-        return self
     
-    def __exit__(self, exc_type, exc_value, traceback):
+    def close(self):
         self._conn.close()
-
-    def __getitem__(self, key):
-        return self._spectrum[key]
-
-    def __iter__(self):
-        return iter(self._spectrum)
-
-    def __len__(self):
-        return len(self._spectrum)
-
-    def __setitem__(self, key, value):
-        if key in self._spectrum:
-            raise KeyError("compound \"{}\" exists".format(key))
-        elif not isinstance(value, pd.DataFrame):
-            raise ValueError("not a DataFrame")
-
-        # save to in-memory database
-        self._spectrum[key] = value
-        # save to file
-        value.to_sql(key, self._conn, if_exists='fail')
-
-    
+        self._conn = None
