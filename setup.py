@@ -18,7 +18,7 @@ setup(
     version='0.0.2.dev',
 
     # one-line description for the summary field
-    description="A Python image processing package for LLSM.",
+    description="Simple Raman spectrum composition analysis.",
 
     long_description=long_description,
     long_description_content_type='text/markdown',
