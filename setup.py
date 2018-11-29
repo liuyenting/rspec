@@ -18,7 +18,7 @@ setup(
     version='0.0.4.dev',
 
     # one-line description for the summary field
-    description="Simple Raman spectrum composition analysis.",
+    description="Simple Raman spectrum composition analyzer.",
 
     long_description=long_description,
     long_description_content_type='text/markdown',
