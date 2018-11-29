@@ -15,7 +15,7 @@ setup(
     #   bumpversion release
     # to next version
     #   bump patch/minor/major
-    version='0.0.3',
+    version='0.0.4.dev',
 
     # one-line description for the summary field
     description="Simple Raman spectrum composition analysis.",
