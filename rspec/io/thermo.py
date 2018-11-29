@@ -16,7 +16,7 @@ def read_sections(lines, section):
             return lines[i+1:(i+1)+n_line]
     raise ValueError("unable to locate \"{}\"".format(section))
 
-def open_thermo(path):
+def open_thermo(path, parse_name=False):
     """Open data file from Thermo
 
     Returns
@@ -29,13 +29,14 @@ def open_thermo(path):
         # load all the file in-memory, assuming small data size
         lines = fd.read().split('\n')
 
-    name = read_sections(lines, 'finalresult')
-    if len(name) > 1:
-        name = None
-        logger.info("mixture spectrum")
-    else:
-        name = name[0].split()[1].lower()
-        logger.info("spectra of \"{}\"".format(name))
+    if parse_name:
+        name = read_sections(lines, 'finalresult')
+        if len(name) > 1:
+            name = None
+            logger.info("mixture spectrum")
+        else:
+            name = name[0].split()[1].lower()
+            logger.info("spectra of \"{}\"".format(name))
 
     s_data = read_sections(lines, 'spectrum')
     _s_data = StringIO('\n'.join(s_data))
@@ -47,4 +48,7 @@ def open_thermo(path):
         dtype=np.float32
     )
 
-    return name, i_data
+    if parse_name:
+        return name, i_data
+    else:
+        return i_data
